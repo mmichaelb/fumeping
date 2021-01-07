@@ -3,6 +3,7 @@ module github.com/mmichaelb/fumeping
 go 1.15
 
 require (
+	github.com/BurntSushi/toml v0.3.1
 	github.com/go-ping/ping v0.0.0-20201115131931-3300c582a663
 	github.com/influxdata/influxdb-client-go/v2 v2.2.1
 	github.com/sirupsen/logrus v1.7.0
