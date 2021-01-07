@@ -18,7 +18,7 @@ jobs:
       - name: Run build script
         run: ${{ matrix.compile-os-arch }} ./build.sh
       - name: Upload build artifacts
-        if: ${{ matrix.go-version == "1.15.x" }}
+        if: ${{ matrix.go-version == '1.15.x' }}
         uses: actions/upload-artifact@v2
         with:
           name: Package
