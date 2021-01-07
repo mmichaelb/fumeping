@@ -11,9 +11,17 @@ import (
 
 const organization = "fumeping"
 const bucketSyntax = "stats-%s"
+const authTokenSyntax = "%s:%s"
 
 type ResultHandler struct {
 	influxClient influxdb2.Client
+}
+
+func New(serverUrl, username, password string) *ResultHandler {
+	client := influxdb2.NewClient(serverUrl, fmt.Sprintf(authTokenSyntax, username, password))
+	return &ResultHandler{
+		influxClient: client,
+	}
 }
 
 func (handler *ResultHandler) Handle(host string, pinger ping2.Pinger, result ping.Result) {
@@ -39,4 +47,8 @@ func (handler *ResultHandler) Handle(host string, pinger ping2.Pinger, result pi
 		return
 	}
 	logrus.WithField("host", host).Debugln("Successfully written ping result point to InfluxDB.")
+}
+
+func (handler *ResultHandler) Close() {
+	handler.influxClient.Close()
 }
