@@ -61,12 +61,16 @@ func startPingExecutors() {
 }
 
 func setupInfluxHandler() {
-	influxHandler = influx.New(config.InfluxDb.ServerUrl, config.InfluxDb.Username, config.InfluxDb.Password)
+	var err error
+	influxHandler, err = influx.New(config.InfluxDb.ServerUrl, config.InfluxDb.Username, config.InfluxDb.Password)
 	logrus.DeferExitHandler(func() {
 		logrus.Infoln("Closing InfluxDB connection...")
 		influxHandler.Close()
 		logrus.Infoln("InfluxDB connection closed!")
 	})
+	if err != nil {
+		logrus.WithError(err).Fatalln("Could not instantiate new InfluxDB handler!")
+	}
 }
 
 func setupLogrus() {

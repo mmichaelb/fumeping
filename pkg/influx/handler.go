@@ -17,11 +17,12 @@ type ResultHandler struct {
 	influxClient influxdb2.Client
 }
 
-func New(serverUrl, username, password string) *ResultHandler {
+func New(serverUrl, username, password string) (*ResultHandler, error) {
 	client := influxdb2.NewClient(serverUrl, fmt.Sprintf(authTokenSyntax, username, password))
+	_, err := client.Health(context.Background())
 	return &ResultHandler{
 		influxClient: client,
-	}
+	}, err
 }
 
 func (handler *ResultHandler) Handle(host string, pinger ping2.Pinger, result ping.Result) {
