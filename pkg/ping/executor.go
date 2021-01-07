@@ -15,23 +15,25 @@ type Executor struct {
 	context       context.Context
 	waitGroup     *sync.WaitGroup
 	resultHandler ResultHandler
+	interval      time.Duration
 
 	pinger *ping.Pinger
 }
 
-func New(host string, interval time.Duration, count int, timeout time.Duration, size int, context context.Context,
+func New(host string, interval, packetInterval time.Duration, count int, timeout time.Duration, size int, context context.Context,
 	waitGroup *sync.WaitGroup, resultHandler ResultHandler) (executor *Executor, err error) {
 	executor = &Executor{
 		host:          host,
 		context:       context,
 		waitGroup:     waitGroup,
 		resultHandler: resultHandler,
+		interval:      interval,
 	}
 	executor.pinger, err = ping.NewPinger(host)
 	if err != nil {
 		return nil, err
 	}
-	executor.pinger.Interval = interval
+	executor.pinger.Interval = packetInterval
 	executor.pinger.Count = count
 	executor.pinger.Timeout = timeout
 	executor.pinger.Size = size
@@ -57,7 +59,7 @@ func (executor *Executor) Run() {
 		case <-executor.context.Done():
 			executor.withHost().Debugln("Stopping ping executor...")
 			return
-		case <-time.After(executor.pinger.Interval):
+		case <-time.After(executor.interval):
 			// run pings after every interval
 			if !executor.RunPingSequence() {
 				// ping sequence failed
