@@ -16,6 +16,7 @@ type Result struct {
 	MaxRtt      time.Duration
 	AvgRtt      time.Duration
 	StdDevRtt   time.Duration
+	Time        time.Time
 }
 
 func (executor *Executor) RunPingSequence() bool {
@@ -30,7 +31,7 @@ func (executor *Executor) RunPingSequence() bool {
 	}
 	stats := executor.pinger.Statistics()
 	if executor.resultHandler != nil {
-		go executor.resultHandler(Result{
+		result := Result{
 			PacketsRecv: stats.PacketsRecv,
 			PacketsSent: stats.PacketsSent,
 			PacketLoss:  stats.PacketLoss,
@@ -41,7 +42,9 @@ func (executor *Executor) RunPingSequence() bool {
 			MaxRtt:      stats.MaxRtt,
 			AvgRtt:      stats.AvgRtt,
 			StdDevRtt:   stats.StdDevRtt,
-		})
+			Time:        time.Now(),
+		}
+		go executor.resultHandler(executor.host, *executor.pinger, result)
 	}
 	return true
 }

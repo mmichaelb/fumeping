@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-type ResultHandler func(result Result)
+type ResultHandler func(host string, pinger ping.Pinger, result Result)
 
 type Executor struct {
 	host          string
