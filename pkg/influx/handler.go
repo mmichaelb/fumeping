@@ -17,7 +17,7 @@ type ResultHandler struct {
 }
 
 func (handler *ResultHandler) Handle(host string, pinger ping2.Pinger, result ping.Result) {
-	logrus.WithField("host", host).Debug("storing ping result in influxdb")
+	logrus.WithField("host", host).Debugln("Storing ping result in influxdb...")
 	api := handler.influxClient.WriteAPIBlocking(organization, fmt.Sprintf(bucketSyntax, host))
 	point := influxdb2.NewPointWithMeasurement("ping").
 		AddTag("host", host).
@@ -35,8 +35,8 @@ func (handler *ResultHandler) Handle(host string, pinger ping2.Pinger, result pi
 		AddField("stdDevRtt", result.StdDevRtt).
 		SetTime(result.Time)
 	if err := api.WritePoint(context.Background(), point); err != nil {
-		logrus.WithField("host", host).WithError(err).Errorln("Could not write ping result point to InfluxDB")
+		logrus.WithField("host", host).WithError(err).Errorln("Could not write ping result point to InfluxDB!")
 		return
 	}
-	logrus.WithField("host", host).Debug("Successfully written ping result point to InfluxDB")
+	logrus.WithField("host", host).Debugln("Successfully written ping result point to InfluxDB.")
 }

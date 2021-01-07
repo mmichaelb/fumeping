@@ -40,7 +40,7 @@ func New(host string, interval time.Duration, count int, timeout time.Duration, 
 
 func (executor *Executor) Run() {
 	defer func() {
-		executor.withHost().Debug("Stopped ping executor!")
+		executor.withHost().Debugln("Stopped ping executor!")
 		executor.waitGroup.Done()
 	}()
 	if !executor.setupPinger() {
@@ -55,7 +55,7 @@ func (executor *Executor) Run() {
 	for {
 		select {
 		case <-executor.context.Done():
-			executor.withHost().Debug("Stopping ping executor...")
+			executor.withHost().Debugln("Stopping ping executor...")
 			return
 		case <-time.After(executor.pinger.Interval):
 			// run pings after every interval
@@ -71,7 +71,7 @@ func (executor *Executor) setupPinger() bool {
 	var err error
 	executor.pinger, err = ping.NewPinger(executor.host)
 	if err != nil {
-		executor.withHost().WithError(err).Errorln("Could not initiate pinger")
+		executor.withHost().WithError(err).Errorln("Could not initiate pinger!")
 		return false
 	}
 	return true

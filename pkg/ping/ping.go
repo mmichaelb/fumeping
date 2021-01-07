@@ -23,13 +23,15 @@ func (executor *Executor) RunPingSequence() bool {
 	executor.withHost().WithField("count", executor.pinger.Count).
 		WithField("interval", executor.pinger.Interval).
 		WithField("size", executor.pinger.Size).
-		WithField("timeout", executor.pinger.Timeout).Debug("Pinging host")
+		WithField("timeout", executor.pinger.Timeout).Debugln("Pinging host...")
+	start := time.Now()
 	err := executor.pinger.Run()
 	if err != nil {
-		executor.withHost().WithError(err).Errorln("Could not run pinger")
+		executor.withHost().WithError(err).Errorln("Could not run pinger!")
 		return false
 	}
 	stats := executor.pinger.Statistics()
+	executor.withHost().WithField("duration", time.Since(start)).Debugln("Successfully ran pinger.")
 	if executor.resultHandler != nil {
 		result := Result{
 			PacketsRecv: stats.PacketsRecv,
