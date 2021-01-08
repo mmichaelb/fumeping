@@ -11,7 +11,7 @@ OUTPUT_SUFFIX=$(go env GOEXE)
 
 OUTPUT_NAME=bin/${PROJECT_NAME}-${GIT_VERSION}-${GOOS}-${GOARCH}${OUTPUT_SUFFIX}
 
-go build -ldflags "-X main.GitVersion=${GIT_VERSION} -X main.GitBranch=${GIT_BRANCH} -X main.GitDefaultBranch=${GIT_DEFAULT_BRANCH}" -o "${OUTPUT_NAME}" ./cmd/fumeping/main.go
+CGO_ENABLED=0 go build -ldflags "-X main.GitVersion=${GIT_VERSION} -X main.GitBranch=${GIT_BRANCH} -X main.GitDefaultBranch=${GIT_DEFAULT_BRANCH}" -o "${OUTPUT_NAME}" ./cmd/fumeping/main.go
 
 EXIT_STATUS=$?
 
