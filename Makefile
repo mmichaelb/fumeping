@@ -8,17 +8,17 @@ LD_FLAGS = -X main.GitVersion=${GIT_VERSION} -X main.GitBranch=${GIT_BRANCH} -X 
 
 OUTPUT_SUFFIX=$(go env GOEXE)
 
+OUTPUT_PREFIX=./bin/${PROJECT_NAME}-${GIT_VERSION}
+
 # builds and formats the project with the built-in Golang tool
 .PHONY: build
 build:
-	OUTPUT_NAME=bin/${PROJECT_NAME}-${GIT_VERSION}-${GOOS}-${GOARCH}${OUTPUT_SUFFIX}
-	@go build -ldflags '${LD_FLAGS}' -o "${OUTPUT_NAME}" ./cmd/fumeping/main.go
+	@go build -ldflags '${LD_FLAGS}' -o "${OUTPUT_PREFIX}-${GOOS}-${GOARCH}${OUTPUT_FILE_ENDING}" ./cmd/fumeping/main.go
 
 # build go application for docker usage
 .PHONY: build-docker
 build-docker:
-	OUTPUT_NAME=bin/${PROJECT_NAME}-${GIT_VERSION}-docker
-	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags '${LD_FLAGS}' -o "${OUTPUT_NAME}" ./cmd/fumeping/main.go
+	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags '${LD_FLAGS}' -o "${OUTPUT_PREFIX}-docker" ./cmd/fumeping/main.go
 
 # installs and formats the project with the built-in Golang tool
 install:
