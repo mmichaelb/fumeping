@@ -58,7 +58,7 @@ jobs:
         uses: docker/build-push-action@v2
         id: docker_build
         with:
-          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          push: ${{ github.event_name == 'push' }}
           context: .
           file: ./build/package/Dockerfile
           tags: ${{ steps.docker_meta.outputs.tags }}
