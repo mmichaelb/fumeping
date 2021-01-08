@@ -4,7 +4,5 @@ FROM scratch
 WORKDIR /app/
 # add compiled binary to root path
 COPY ./bin/fumeping fumeping
-# make fumeping executable
-RUN chmod +x fumeping
 # start application located at /app/fumeping
 ENTRYPOINT ["./fumeping", "-config", "./config.toml"]
