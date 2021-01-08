@@ -1,7 +1,7 @@
 PROJECT_NAME=fumeping
 
-GIT_VERSION=$(git describe --always)
-GIT_BRANCH=$(git branch --show-current)
+GIT_VERSION=$(shell git describe --always)
+GIT_BRANCH=$(shell git branch --show-current)
 GIT_DEFAULT_BRANCH=main
 
 LD_FLAGS = -X main.GitVersion=${GIT_VERSION} -X main.GitBranch=${GIT_BRANCH} -X main.GitDefaultBranch=${GIT_DEFAULT_BRANCH}
