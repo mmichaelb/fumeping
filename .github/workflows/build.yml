@@ -46,7 +46,7 @@ jobs:
           name: BuildArtifact
           path: ./bin/
       - name: Filter out correct binary
-        run: mv ./bin/fumeping-*-linux-amd64 ./bin/fumeping
+        run: mv ./bin/fumeping-*-docker ./bin/fumeping
       - name: Make binary executable
         run: chmod +x ./bin/fumeping
       - name: Set up QEMU
