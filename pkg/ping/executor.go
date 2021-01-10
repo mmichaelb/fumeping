@@ -33,7 +33,6 @@ func New(host string, interval, packetInterval time.Duration, count int, timeout
 	if err != nil {
 		return nil, err
 	}
-	executor.pinger.SetPrivileged(true)
 	executor.pinger.Interval = packetInterval
 	executor.pinger.Count = count
 	executor.pinger.Timeout = timeout
