@@ -10,8 +10,7 @@ const configPath = "./configs/config.toml"
 func main() {
 	defaultConfig := &config.Config{
 		InfluxDb: config.InfluxDb{
-			Organization: "fumeping",
-			BucketSyntax: "stats-%s",
+			DatabaseName: "fumeping",
 			ServerUrl:    "http://localhost:8086/",
 			AuthEnabled:  true,
 			Username:     "admin",

@@ -17,8 +17,7 @@ type DestinationHost struct {
 }
 
 type InfluxDb struct {
-	Organization string
-	BucketSyntax string
+	DatabaseName string
 	ServerUrl    string
 	AuthEnabled  bool
 	Username     string

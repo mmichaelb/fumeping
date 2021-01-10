@@ -5,68 +5,37 @@ import (
 	"fmt"
 	ping2 "github.com/go-ping/ping"
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
-	"github.com/influxdata/influxdb-client-go/v2/domain"
 	"github.com/mmichaelb/fumeping/pkg/ping"
 	"github.com/sirupsen/logrus"
 )
 
-const organization = "fumeping"
-const bucketSyntax = "stats-%s"
 const authTokenSyntax = "%s:%s"
 
 type ResultHandler struct {
 	influxClient influxdb2.Client
-	organization *domain.Organization
+	databaseName string
 }
 
-func New(serverUrl string) (*ResultHandler, error) {
-	client := influxdb2.NewClient(serverUrl, "")
-	handler := &ResultHandler{
-		influxClient: client,
-	}
-	return handler, nil
+func New(serverUrl, databaseName string) (*ResultHandler, error) {
+	return NewWithAuth(serverUrl, databaseName, "", "")
 }
 
-func NewWithAuth(serverUrl, username, password string) (*ResultHandler, error) {
-	client := influxdb2.NewClient(serverUrl, fmt.Sprintf(authTokenSyntax, username, password))
+func NewWithAuth(serverUrl, databaseName, username, password string) (*ResultHandler, error) {
+	var authToken string
+	if username == "" {
+		authToken = fmt.Sprintf(authTokenSyntax, username, password)
+	}
+	client := influxdb2.NewClient(serverUrl, authToken)
 	handler := &ResultHandler{
 		influxClient: client,
-	}
-	var err error
-	organizationsApi := client.OrganizationsAPI()
-	if handler.organization, err = organizationsApi.FindOrganizationByName(context.Background(), organization); err != nil {
-		logrus.WithError(err).WithField("organizationName", organization).Errorln("Could not run InfluxDB find organization by name!")
-	} else if handler.organization == nil {
-		logrus.WithField("organizationName", organization).Debugln("Creating InfluxDB organization...")
-		handler.organization, err = organizationsApi.CreateOrganizationWithName(context.Background(), organization)
-		if err != nil {
-			logrus.WithError(err).WithField("organizationName", organization).Errorln("Could not create InfluxDB organization!")
-		}
-		logrus.WithField("organizationName", organization).Debugln("Created InfluxDB organization!")
-	}
-	if err != nil {
-		return nil, err
+		databaseName: databaseName,
 	}
 	return handler, nil
 }
 
 func (handler *ResultHandler) Handle(host string, pinger ping2.Pinger, result ping.Result) {
 	logrus.WithField("host", host).Debugln("Storing ping result in influxdb...")
-	bucketName := fmt.Sprintf(bucketSyntax, host)
-	bucketsApi := handler.influxClient.BucketsAPI()
-	if bucket, err := bucketsApi.FindBucketByName(context.Background(), bucketName); err != nil {
-		logrus.WithError(err).WithField("host", host).Errorln("Could not run InfluxDB find bucket by name!")
-		return
-	} else if bucket == nil {
-		logrus.WithField("host", host).Infof("Creating bucket %s in influxdb...", bucketName)
-		_, err := bucketsApi.CreateBucketWithName(context.Background(), handler.organization, bucketName)
-		if err != nil {
-			logrus.WithError(err).WithField("host", host).Errorln("Could not create new InfluxDB bucket!")
-			return
-		}
-		logrus.WithField("host", host).Infof("Created new bucket %s in influxdb!", bucketName)
-	}
-	api := handler.influxClient.WriteAPIBlocking(organization, bucketName)
+	api := handler.influxClient.WriteAPIBlocking("", handler.databaseName)
 	point := influxdb2.NewPointWithMeasurement("ping").
 		AddTag("host", host).
 		AddField("interval", pinger.Interval).

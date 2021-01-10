@@ -1,7 +1,6 @@
-# Config written on Sun Jan 10 19:17:32 +0100 CET 2021
+# Config written on Sun Jan 10 19:22:46 +0100 CET 2021
 [InfluxDb]
-  Organization = "fumeping"
-  BucketSyntax = "stats-%s"
+  DatabaseName = "fumeping"
   ServerUrl = "http://localhost:8086/"
   AuthEnabled = true
   Username = "admin"
