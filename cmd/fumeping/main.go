@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/signal"
 	"sync"
+	"syscall"
 )
 
 // application parameters
@@ -31,11 +32,14 @@ func main() {
 	logrus.WithField("version", GitVersion).WithField("branch", GitBranch).Info("Starting FumePing...")
 	loadConfig()
 	setupInfluxHandler()
-	startPingExecutors()
 	signalChannel := make(chan os.Signal, 1)
-	signal.Notify(signalChannel, os.Interrupt)
-	<-signalChannel
-	logrus.Exit(0)
+	signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-signalChannel
+		logrus.Exit(0)
+	}()
+	// start ping executors
+	startPingExecutors()
 }
 
 func startPingExecutors() {
