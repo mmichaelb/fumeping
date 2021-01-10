@@ -19,13 +19,9 @@ type ResultHandler struct {
 
 func New(serverUrl, username, password string) (*ResultHandler, error) {
 	client := influxdb2.NewClient(serverUrl, fmt.Sprintf(authTokenSyntax, username, password))
-	running, err := client.Ready(context.Background())
-	if !running {
-		logrus.WithError(err).Fatalln("InfluxDB still not running after 30 seconds passed!")
-	}
 	return &ResultHandler{
 		influxClient: client,
-	}, err
+	}, nil
 }
 
 func (handler *ResultHandler) Handle(host string, pinger ping2.Pinger, result ping.Result) {
