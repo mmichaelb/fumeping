@@ -1,5 +1,5 @@
 # build from scratch image
-FROM ubuntu:latest
+FROM alpine:latest
 # set working directory
 WORKDIR /app/
 # add compiled binary to root path

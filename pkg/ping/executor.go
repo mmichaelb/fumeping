@@ -46,10 +46,6 @@ func (executor *Executor) Run() {
 		executor.withHost().Debugln("Stopped ping executor!")
 		executor.waitGroup.Done()
 	}()
-	if !executor.setupPinger() {
-		// pinger setup failed
-		return
-	}
 	// run first ping sequence initially
 	if !executor.RunPingSequence() {
 		// ping sequence failed
@@ -68,16 +64,6 @@ func (executor *Executor) Run() {
 			}
 		}
 	}
-}
-
-func (executor *Executor) setupPinger() bool {
-	var err error
-	executor.pinger, err = ping.NewPinger(executor.host)
-	if err != nil {
-		executor.withHost().WithError(err).Errorln("Could not initiate pinger!")
-		return false
-	}
-	return true
 }
 
 func (executor Executor) withHost() *logrus.Entry {
