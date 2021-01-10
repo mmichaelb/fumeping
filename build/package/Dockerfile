@@ -1,5 +1,5 @@
 # build from scratch image
-FROM scratch
+FROM alpine:3.7
 # set working directory
 WORKDIR /app/
 # add compiled binary to root path
