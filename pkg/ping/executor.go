@@ -34,10 +34,18 @@ func New(host string, interval, packetInterval time.Duration, count int, timeout
 		return nil, err
 	}
 	executor.pinger.SetPrivileged(true)
-	executor.pinger.Interval = packetInterval
-	executor.pinger.Count = count
-	executor.pinger.Timeout = timeout
-	executor.pinger.Size = size
+	if packetInterval != 0 {
+		executor.pinger.Interval = packetInterval
+	}
+	if count != 0 {
+		executor.pinger.Count = count
+	}
+	if timeout != 0 {
+		executor.pinger.Timeout = timeout
+	}
+	if size != 0 {
+		executor.pinger.Size = size
+	}
 	return
 }
 
