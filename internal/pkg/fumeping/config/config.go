@@ -20,6 +20,7 @@ type InfluxDb struct {
 	Organization string
 	BucketSyntax string
 	ServerUrl    string
+	AuthEnabled  bool
 	Username     string
 	Password     string
 }

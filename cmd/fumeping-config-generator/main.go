@@ -13,6 +13,7 @@ func main() {
 			Organization: "fumeping",
 			BucketSyntax: "stats-%s",
 			ServerUrl:    "http://localhost:8086/",
+			AuthEnabled:  true,
 			Username:     "admin",
 			Password:     "mycrazypassword",
 		},

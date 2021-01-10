@@ -19,7 +19,15 @@ type ResultHandler struct {
 	organization *domain.Organization
 }
 
-func New(serverUrl, username, password string) (*ResultHandler, error) {
+func New(serverUrl string) (*ResultHandler, error) {
+	client := influxdb2.NewClient(serverUrl, "")
+	handler := &ResultHandler{
+		influxClient: client,
+	}
+	return handler, nil
+}
+
+func NewWithAuth(serverUrl, username, password string) (*ResultHandler, error) {
 	client := influxdb2.NewClient(serverUrl, fmt.Sprintf(authTokenSyntax, username, password))
 	handler := &ResultHandler{
 		influxClient: client,
