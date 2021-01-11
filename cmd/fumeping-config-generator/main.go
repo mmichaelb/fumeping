@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/mmichaelb/fumeping/internal/pkg/fumeping/config"
-	"time"
 )
 
 const configPath = "./configs/config.toml"
@@ -10,26 +9,25 @@ const configPath = "./configs/config.toml"
 func main() {
 	defaultConfig := &config.Config{
 		InfluxDb: config.InfluxDb{
-			DatabaseName: "fumeping",
-			ServerUrl:    "http://localhost:8086/",
-			AuthEnabled:  true,
-			Username:     "admin",
-			Password:     "mycrazypassword",
+			DatabaseName:   "fumeping",
+			ServerUrl:      "http://localhost:8086/",
+			AuthEnabled:    true,
+			Username:       "admin",
+			Password:       "mycrazypassword",
+			GatherInterval: 30,
 		},
-		Destinations: []config.DestinationHost{
-			{
-				Host:           "mycustomhost",
-				Interval:       time.Minute,
-				PacketInterval: time.Millisecond * 100,
-				Count:          10,
-				Timeout:        time.Second * 10,
-			},
-			{
-				Host:           "yetanothercustomhost",
-				Interval:       time.Minute,
-				PacketInterval: time.Millisecond * 100,
-				Count:          10,
-				Timeout:        time.Second * 10,
+		PingMonitor: config.PingMonitor{
+			Timeout:      10,
+			PingInterval: 1,
+			PayloadSize:  56,
+			Destinations: map[string]config.Destination{
+				"First": {
+					Host: "mycustomhost",
+				},
+				"Second": {
+					Host:    "mycustomipv6host",
+					Network: "ipv6",
+				},
 			},
 		},
 	}

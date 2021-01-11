@@ -1,16 +1,16 @@
 package main
 
 import (
+	"context"
 	"flag"
 	fumePingConfig "github.com/mmichaelb/fumeping/internal/pkg/fumeping/config"
+	"github.com/mmichaelb/fumeping/internal/pkg/fumeping/ping"
 	"github.com/mmichaelb/fumeping/pkg/influx"
-	"github.com/mmichaelb/fumeping/pkg/ping"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/net/context"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
+	"time"
 )
 
 // application parameters
@@ -23,6 +23,7 @@ var GitVersion string
 var GitBranch string
 var GitDefaultBranch string
 var config *fumePingConfig.Config
+var executor *ping.Executor
 var influxHandler *influx.ResultHandler
 
 func main() {
@@ -31,6 +32,9 @@ func main() {
 	// startup message
 	logrus.WithField("version", GitVersion).WithField("branch", GitBranch).Info("Starting FumePing...")
 	loadConfig()
+	// start ping executors
+	startPingExecutors()
+	// setup influx handler
 	setupInfluxHandler()
 	signalChannel := make(chan os.Signal, 1)
 	signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM)
@@ -38,47 +42,55 @@ func main() {
 		<-signalChannel
 		logrus.Exit(0)
 	}()
-	// start ping executors
-	startPingExecutors()
+	// start blocking InfluxDB gatherer
+	influxHandler.Run()
 }
 
 func startPingExecutors() {
-	waitGroup := &sync.WaitGroup{}
-	cancelContext, cancelFunction := context.WithCancel(context.Background())
+	logrus.WithField("destinationNumber", len(config.PingMonitor.Destinations)).Infoln("Starting ping executors...")
+	timeout := time.Second * time.Duration(config.PingMonitor.Timeout)
+	interval := time.Second * time.Duration(config.PingMonitor.PingInterval)
+	payloadSize := config.PingMonitor.PayloadSize
+	var err error
+	executor, err = ping.New(timeout, interval, payloadSize)
+	if err != nil {
+		logrus.WithField("timeout", timeout).
+			WithField("interval", interval).WithField("payloadSize", payloadSize).
+			WithError(err).Fatalln("Could not setup ping executor!")
+	}
 	logrus.DeferExitHandler(func() {
-		logrus.Infoln("Sending stop signal to ping executors...")
-		cancelFunction()
+		logrus.Infoln("Stopping ping executor...")
+		executor.Stop()
 	})
-	logrus.WithField("destinationNumber", len(config.Destinations)).Infoln("Starting ping executors...")
-	for _, destination := range config.Destinations {
-		executor, err := ping.New(destination.Host, destination.Interval, destination.PacketInterval, destination.Count, destination.Timeout, destination.PacketSize, cancelContext, waitGroup, influxHandler.Handle)
-		if err != nil {
-			logrus.WithField("host", destination.Host).WithError(err).Fatalln("Could not setup executor!")
+	for name, destination := range config.PingMonitor.Destinations {
+		if err := executor.AddHostTarget(name, destination.Network, destination.Host); err != nil {
+			logrus.WithField("name", name).WithField("destination", destination).Fatalln("Could not add host target.")
 		}
-		// increment waitgroup after pinger initialization was successful
-		waitGroup.Add(1)
-		go executor.Run()
 	}
 	logrus.Infoln("Ping executors started in background!")
-	waitGroup.Wait()
-	logrus.Infoln("Stopped ping executors!")
 }
 
 func setupInfluxHandler() {
 	var err error
+	serverUrl := config.InfluxDb.ServerUrl
+	databaseName := config.InfluxDb.DatabaseName
+	interval := time.Second * time.Duration(config.InfluxDb.GatherInterval)
+	ctx, cancelFunc := context.WithCancel(context.Background())
 	if config.InfluxDb.AuthEnabled {
-		influxHandler, err = influx.NewWithAuth(config.InfluxDb.ServerUrl, config.InfluxDb.DatabaseName, config.InfluxDb.Username, config.InfluxDb.Password)
+		username := config.InfluxDb.Username
+		password := config.InfluxDb.Password
+		influxHandler, err = influx.NewWithAuth(serverUrl, databaseName, username, password, executor, interval, ctx)
 	} else {
-		influxHandler, err = influx.New(config.InfluxDb.ServerUrl, config.InfluxDb.DatabaseName)
+		influxHandler, err = influx.New(serverUrl, databaseName, executor, interval, ctx)
 	}
-	logrus.DeferExitHandler(func() {
-		logrus.Infoln("Closing InfluxDB connection...")
-		influxHandler.Close()
-		logrus.Infoln("InfluxDB connection closed!")
-	})
 	if err != nil {
 		logrus.WithError(err).Fatalln("Could not instantiate new InfluxDB handler!")
 	}
+	logrus.DeferExitHandler(func() {
+		logrus.Infoln("Stopping InfluxDB metrics gatherer...")
+		cancelFunc()
+		logrus.Infoln("InfluxDB metrics gatherer stopped!")
+	})
 }
 
 func setupLogrus() {

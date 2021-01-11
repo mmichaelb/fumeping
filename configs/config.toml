@@ -1,23 +1,20 @@
-# Config written on Sun Jan 10 19:22:46 +0100 CET 2021
+# Config written on Mon Jan 11 10:46:09 +0100 CET 2021
 [InfluxDb]
   DatabaseName = "fumeping"
   ServerUrl = "http://localhost:8086/"
   AuthEnabled = true
   Username = "admin"
   Password = "mycrazypassword"
+  GatherInterval = 30
 
-[[Destinations]]
-  Host = "mycustomhost"
-  Interval = 60000000000
-  PacketInterval = 100000000
-  Count = 10
-  Timeout = 10000000000
-  PacketSize = 0
-
-[[Destinations]]
-  Host = "yetanothercustomhost"
-  Interval = 60000000000
-  PacketInterval = 100000000
-  Count = 10
-  Timeout = 10000000000
-  PacketSize = 0
+[PingMonitor]
+  Timeout = 10
+  PingInterval = 1
+  PayloadSize = 56
+  [PingMonitor.Destinations]
+    [PingMonitor.Destinations.First]
+      Host = "mycustomhost"
+      Network = ""
+    [PingMonitor.Destinations.Second]
+      Host = "mycustomipv6host"
+      Network = "ipv6"

@@ -1,25 +1,27 @@
 package config
 
-import "time"
-
 type Config struct {
-	InfluxDb     InfluxDb
-	Destinations []DestinationHost
+	InfluxDb    InfluxDb
+	PingMonitor PingMonitor
 }
 
-type DestinationHost struct {
-	Host           string
-	Interval       time.Duration
-	PacketInterval time.Duration
-	Count          int
-	Timeout        time.Duration
-	PacketSize     int
+type PingMonitor struct {
+	Timeout      int
+	PingInterval int
+	PayloadSize  uint16
+	Destinations map[string]Destination
+}
+
+type Destination struct {
+	Host    string
+	Network string
 }
 
 type InfluxDb struct {
-	DatabaseName string
-	ServerUrl    string
-	AuthEnabled  bool
-	Username     string
-	Password     string
+	DatabaseName   string
+	ServerUrl      string
+	AuthEnabled    bool
+	Username       string
+	Password       string
+	GatherInterval int
 }
