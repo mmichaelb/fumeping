@@ -72,19 +72,22 @@ func startPingExecutors() {
 }
 
 func setupInfluxHandler() {
-	log.Log = &wrappedLogrus{Logger: logrus.StandardLogger()}
+	logrus.Infoln("Setting up InfluxDB metrics gatherer...")
 	var err error
 	serverUrl := config.InfluxDb.ServerUrl
 	databaseName := config.InfluxDb.DatabaseName
 	interval := time.Second * time.Duration(config.InfluxDb.GatherInterval)
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	if config.InfluxDb.AuthEnabled {
+		logrus.Debugln("Using auth enabled InfluxDB connection.")
 		username := config.InfluxDb.Username
 		password := config.InfluxDb.Password
 		influxHandler, err = influx.NewWithAuth(serverUrl, databaseName, username, password, executor, interval, ctx)
 	} else {
+		logrus.Debugln("Using auth disabled InfluxDB connection.")
 		influxHandler, err = influx.New(serverUrl, databaseName, executor, interval, ctx)
 	}
+	log.Log = &wrappedLogrus{Logger: logrus.New()}
 	if err != nil {
 		logrus.WithError(err).Fatalln("Could not instantiate new InfluxDB handler!")
 	}
@@ -93,6 +96,7 @@ func setupInfluxHandler() {
 		cancelFunc()
 		logrus.Infoln("InfluxDB metrics gatherer stopped!")
 	})
+	logrus.Infoln("Successfully set up InfluxDB metrics gatherer!")
 }
 
 func setupLogrus() {

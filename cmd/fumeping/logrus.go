@@ -16,17 +16,17 @@ func (wrappedLogrus *wrappedLogrus) SetLogLevel(logLevel uint) {
 }
 
 func (wrappedLogrus *wrappedLogrus) Debug(message string) {
-	wrappedLogrus.Debugln(message)
+	wrappedLogrus.Logger.Debugln(message)
 }
 
 func (wrappedLogrus *wrappedLogrus) Warn(message string) {
-	wrappedLogrus.Warnln(message)
+	wrappedLogrus.Logger.Warnln(message)
 }
 
 func (wrappedLogrus *wrappedLogrus) Error(message string) {
-	wrappedLogrus.Warnln(message)
+	wrappedLogrus.Logger.Errorln(message)
 }
 
 func (wrappedLogrus *wrappedLogrus) Info(message string) {
-	wrappedLogrus.Warnln(message)
+	wrappedLogrus.Logger.Infoln(message)
 }

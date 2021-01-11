@@ -54,6 +54,7 @@ func (handler *ResultHandler) Run() {
 
 func (handler *ResultHandler) gather() {
 	metrics := handler.executor.ExportAndClear()
+	logrus.WithField("metrics", metrics).Debugln("Gathered metrics from ping monitor.")
 	api := handler.influxClient.WriteAPIBlocking("", handler.databaseName)
 	for name, metric := range metrics {
 		logrus.WithField("name", name).Debugln("Writing metrics entry to InfluxDB...")
@@ -69,7 +70,7 @@ func (handler *ResultHandler) gather() {
 			SetTime(time.Now())
 		if err := api.WritePoint(context.Background(), point); err != nil {
 			logrus.WithField("name", name).WithError(err).Errorln("Could not write ping result point to InfluxDB!")
-			return
+			continue
 		}
 		logrus.WithField("name", name).Debugln("Successfully written metrics to InfluxDB.")
 	}
