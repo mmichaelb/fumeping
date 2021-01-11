@@ -87,10 +87,10 @@ func setupInfluxHandler() {
 		logrus.Debugln("Using auth enabled InfluxDB connection.")
 		username := config.InfluxDb.Username
 		password := config.InfluxDb.Password
-		influxHandler, err = influx.NewWithAuth(serverUrl, databaseName, username, password, executor, interval, ctx)
+		influxHandler, err = influx.NewWithAuth(serverUrl, databaseName, config.InfluxDb.RetentionDuration, username, password, executor, interval, ctx)
 	} else {
 		logrus.Debugln("Using auth disabled InfluxDB connection.")
-		influxHandler, err = influx.New(serverUrl, databaseName, executor, interval, ctx)
+		influxHandler, err = influx.New(serverUrl, databaseName, config.InfluxDb.RetentionDuration, executor, interval, ctx)
 	}
 	log.Log = &logrus2.WrappedLogrus{Logger: logrus.StandardLogger()}
 	if err != nil {

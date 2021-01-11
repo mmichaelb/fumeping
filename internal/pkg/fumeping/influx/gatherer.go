@@ -6,40 +6,49 @@ import (
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 	"github.com/mmichaelb/fumeping/internal/pkg/fumeping/ping"
 	"github.com/sirupsen/logrus"
+	"strconv"
 	"time"
 )
 
 const authTokenSyntax = "%s:%s"
 
 type ResultHandler struct {
-	influxClient influxdb2.Client
-	databaseName string
-	executor     *ping.Executor
-	interval     time.Duration
-	ctx          context.Context
+	influxClient            influxdb2.Client
+	databaseName            string
+	retentionPolicyDuration string
+	executor                *ping.Executor
+	interval                time.Duration
+	ctx                     context.Context
 }
 
-func New(serverUrl, databaseName string, executor *ping.Executor, interval time.Duration, ctx context.Context) (*ResultHandler, error) {
-	return NewWithAuth(serverUrl, databaseName, "", "", executor, interval, ctx)
+func New(serverUrl, databaseName, retentionPolicyDuration string, executor *ping.Executor, interval time.Duration, ctx context.Context) (*ResultHandler, error) {
+	return NewWithAuth(serverUrl, databaseName, retentionPolicyDuration, "", "", executor, interval, ctx)
 }
 
-func NewWithAuth(serverUrl, databaseName, username, password string, executor *ping.Executor, interval time.Duration, ctx context.Context) (*ResultHandler, error) {
+func NewWithAuth(serverUrl, databaseName, retentionPolicyDuration, username, password string, executor *ping.Executor, interval time.Duration, ctx context.Context) (*ResultHandler, error) {
 	var authToken string
 	if username == "" {
 		authToken = fmt.Sprintf(authTokenSyntax, username, password)
 	}
 	client := influxdb2.NewClient(serverUrl, authToken)
 	handler := &ResultHandler{
-		influxClient: client,
-		databaseName: databaseName,
-		executor:     executor,
-		interval:     interval,
-		ctx:          ctx,
+		influxClient:            client,
+		databaseName:            databaseName,
+		retentionPolicyDuration: retentionPolicyDuration,
+		executor:                executor,
+		interval:                interval,
+		ctx:                     ctx,
 	}
 	return handler, nil
 }
 
 func (handler *ResultHandler) Run() {
+	logrus.WithFields(logrus.Fields{"retentionDuration": handler.retentionPolicyDuration, "databaseName": handler.databaseName}).Infoln("Altering default retention policy...")
+	query := fmt.Sprintf("ALTER RETENTION POLICY %s ON %s DURATION %s DEFAULT", `'autogen'`, handler.databaseName, strconv.Quote(handler.retentionPolicyDuration))
+	_, err := handler.influxClient.QueryAPI("").Query(context.Background(), query)
+	if err != nil {
+		logrus.WithError(err).Fatalln("Could not alter retention policy!")
+	}
 	logrus.WithField("interval", handler.interval.String()).Infoln("Starting InfluxDB metrics gatherer...")
 	for {
 		select {
