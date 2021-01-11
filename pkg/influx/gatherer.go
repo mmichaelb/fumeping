@@ -59,7 +59,7 @@ func (handler *ResultHandler) gather() {
 	for name, metric := range metrics {
 		logrus.WithField("name", name).Debugln("Writing metrics entry to InfluxDB...")
 		point := influxdb2.NewPointWithMeasurement("ping").
-			AddTag("name", name).
+			AddTag("destination", name).
 			AddField("packetsSent", metric.PacketsSent).
 			AddField("packetsLost", metric.PacketsLost).
 			AddField("minRtt", metric.Best).
