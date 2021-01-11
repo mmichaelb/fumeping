@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"github.com/influxdata/influxdb-client-go/v2/log"
 	fumePingConfig "github.com/mmichaelb/fumeping/internal/pkg/fumeping/config"
 	"github.com/mmichaelb/fumeping/internal/pkg/fumeping/ping"
 	"github.com/mmichaelb/fumeping/pkg/influx"
@@ -71,6 +72,7 @@ func startPingExecutors() {
 }
 
 func setupInfluxHandler() {
+	log.Log = &wrappedLogrus{Logger: logrus.StandardLogger()}
 	var err error
 	serverUrl := config.InfluxDb.ServerUrl
 	databaseName := config.InfluxDb.DatabaseName
