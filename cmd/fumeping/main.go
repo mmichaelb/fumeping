@@ -5,6 +5,7 @@ import (
 	"flag"
 	"github.com/influxdata/influxdb-client-go/v2/log"
 	fumePingConfig "github.com/mmichaelb/fumeping/internal/pkg/fumeping/config"
+	logrus2 "github.com/mmichaelb/fumeping/internal/pkg/fumeping/logrus"
 	"github.com/mmichaelb/fumeping/internal/pkg/fumeping/ping"
 	"github.com/mmichaelb/fumeping/pkg/influx"
 	"github.com/sirupsen/logrus"
@@ -87,7 +88,7 @@ func setupInfluxHandler() {
 		logrus.Debugln("Using auth disabled InfluxDB connection.")
 		influxHandler, err = influx.New(serverUrl, databaseName, executor, interval, ctx)
 	}
-	log.Log = &wrappedLogrus{Logger: logrus.New()}
+	log.Log = &logrus2.WrappedLogrus{Logger: logrus.New()}
 	if err != nil {
 		logrus.WithError(err).Fatalln("Could not instantiate new InfluxDB handler!")
 	}
