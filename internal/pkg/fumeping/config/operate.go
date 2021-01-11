@@ -8,9 +8,9 @@ import (
 )
 
 func ReadConfig(filename string) (*Config, error) {
-	config := &Config{}
-	_, err := toml.DecodeFile(filename, config)
-	return config, err
+	config := DefaultConfig
+	_, err := toml.DecodeFile(filename, &config)
+	return &config, err
 }
 
 func WriteConfig(filename string, config *Config) error {
