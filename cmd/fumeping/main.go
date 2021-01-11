@@ -92,7 +92,7 @@ func setupInfluxHandler() {
 		logrus.Debugln("Using auth disabled InfluxDB connection.")
 		influxHandler, err = influx.New(serverUrl, databaseName, executor, interval, ctx)
 	}
-	log.Log = &logrus2.WrappedLogrus{Logger: logrus.New()}
+	log.Log = &logrus2.WrappedLogrus{Logger: logrus.StandardLogger()}
 	if err != nil {
 		logrus.WithError(err).Fatalln("Could not instantiate new InfluxDB handler!")
 	}
