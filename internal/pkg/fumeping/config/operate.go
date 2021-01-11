@@ -8,7 +8,7 @@ import (
 )
 
 func ReadConfig(filename string) (*Config, error) {
-	config := DefaultConfig
+	config := LoadDefaultConfig
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, err

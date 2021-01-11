@@ -26,6 +26,16 @@ type InfluxDb struct {
 	GatherInterval int
 }
 
+var LoadDefaultConfig = Config{
+	InfluxDb: DefaultConfig.InfluxDb,
+	PingMonitor: PingMonitor{
+		Timeout:      10,
+		PingInterval: 1,
+		PayloadSize:  56,
+		Destinations: map[string]Destination{},
+	},
+}
+
 var DefaultConfig = Config{
 	InfluxDb: InfluxDb{
 		DatabaseName:   "fumeping",
