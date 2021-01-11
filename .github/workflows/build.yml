@@ -38,6 +38,9 @@ jobs:
         with:
           images: ghcr.io/mmichaelb/fumeping/fumeping
           tag-sha: true
+          tag-semver: |
+            {{version}}
+            {{major}}.{{minor}}
       - name: Create bin directory
         run: mkdir -p ./bin/
       - name: Download required artifacts
