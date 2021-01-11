@@ -18,13 +18,13 @@ type Destination struct {
 }
 
 type InfluxDb struct {
-	DatabaseName      string
-	ServerUrl         string
-	AuthEnabled       bool
-	Username          string
-	Password          string
-	RetentionDuration string
-	GatherInterval    int
+	ServerUrl            string
+	Organization         string
+	DefaultBucket        string
+	Username             string
+	Password             string
+	RetentionPeriodHours int
+	GatherInterval       int
 }
 
 var LoadDefaultConfig = Config{
@@ -39,13 +39,13 @@ var LoadDefaultConfig = Config{
 
 var DefaultConfig = Config{
 	InfluxDb: InfluxDb{
-		DatabaseName:      "fumeping",
-		ServerUrl:         "http://localhost:8086/",
-		AuthEnabled:       true,
-		Username:          "admin",
-		Password:          "mycrazypassword",
-		RetentionDuration: "7d",
-		GatherInterval:    30,
+		ServerUrl:            "http://localhost:8086/",
+		Organization:         "fumeping",
+		DefaultBucket:        "fumeping",
+		Username:             "admin",
+		Password:             "mycrazypassword",
+		RetentionPeriodHours: 24 * 7,
+		GatherInterval:       30,
 	},
 	PingMonitor: PingMonitor{
 		Timeout:      10,

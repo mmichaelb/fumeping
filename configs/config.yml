@@ -1,10 +1,11 @@
-# FumePing Config written on Mon Jan 11 12:34:46 +0100 CET 2021
+# FumePing Config written on Mon Jan 11 17:00:47 +0100 CET 2021
 influxdb:
-    databasename: fumeping
     serverurl: http://localhost:8086/
-    authenabled: true
+    organization: fumeping
+    defaultbucket: fumeping
     username: admin
     password: mycrazypassword
+    retentionperiodhours: 168
     gatherinterval: 30
 pingmonitor:
     timeout: 10
@@ -16,4 +17,4 @@ pingmonitor:
             network: ""
         Second:
             host: mycustomipv6host
-            network: ipv6
+            network: ip6

@@ -9,8 +9,10 @@ import (
 	logrus2 "github.com/mmichaelb/fumeping/internal/pkg/fumeping/logrus"
 	"github.com/mmichaelb/fumeping/internal/pkg/fumeping/ping"
 	"github.com/sirupsen/logrus"
+	"io/ioutil"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -19,6 +21,7 @@ import (
 var logLevel = flag.String("level", "info",
 	"Set the logging level. See https://github.com/sirupsen/logrus#level-logging for more details.")
 var configPath = flag.String("config", "./config.yml", "Set the config file path.")
+var influxAuthTokenFile = flag.String("tokenfile", ".influxdb_token", "Set the InfluxDB token file to use.")
 
 // ldflags
 var GitVersion string
@@ -78,20 +81,16 @@ func startPingExecutors() {
 
 func setupInfluxHandler() {
 	logrus.Infoln("Setting up InfluxDB metrics gatherer...")
-	var err error
-	serverUrl := config.InfluxDb.ServerUrl
-	databaseName := config.InfluxDb.DatabaseName
-	interval := time.Second * time.Duration(config.InfluxDb.GatherInterval)
-	ctx, cancelFunc := context.WithCancel(context.Background())
-	if config.InfluxDb.AuthEnabled {
-		logrus.Debugln("Using auth enabled InfluxDB connection.")
-		username := config.InfluxDb.Username
-		password := config.InfluxDb.Password
-		influxHandler, err = influx.NewWithAuth(serverUrl, databaseName, config.InfluxDb.RetentionDuration, username, password, executor, interval, ctx)
-	} else {
-		logrus.Debugln("Using auth disabled InfluxDB connection.")
-		influxHandler, err = influx.New(serverUrl, databaseName, config.InfluxDb.RetentionDuration, executor, interval, ctx)
+	token, err := loadInfluxToken()
+	if err != nil {
+		if os.IsNotExist(err) {
+			token = ""
+		} else {
+			logrus.WithError(err).Fatalln("Could not load InfluxDB token!")
+		}
 	}
+	ctx, cancelFunc := context.WithCancel(context.Background())
+	influxHandler, err = influx.New(config.InfluxDb, token, *influxAuthTokenFile, executor, ctx)
 	log.Log = &logrus2.WrappedLogrus{Logger: logrus.StandardLogger()}
 	if err != nil {
 		logrus.WithError(err).Fatalln("Could not instantiate new InfluxDB handler!")
@@ -102,6 +101,15 @@ func setupInfluxHandler() {
 		logrus.Infoln("InfluxDB metrics gatherer stopped!")
 	})
 	logrus.Infoln("Successfully set up InfluxDB metrics gatherer!")
+}
+
+func loadInfluxToken() (string, error) {
+	tokenBytes, err := ioutil.ReadFile(*influxAuthTokenFile)
+	if err != nil {
+		return "", err
+	}
+	token := strings.Trim(string(tokenBytes), " \r\n")
+	return token, nil
 }
 
 func setupLogrus() {
