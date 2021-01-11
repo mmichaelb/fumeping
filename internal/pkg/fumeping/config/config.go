@@ -55,7 +55,7 @@ var DefaultConfig = Config{
 			},
 			"Second": {
 				Host:    "mycustomipv6host",
-				Network: "ipv6",
+				Network: "ip6",
 			},
 		},
 	},
