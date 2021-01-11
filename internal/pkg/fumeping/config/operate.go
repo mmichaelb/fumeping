@@ -2,14 +2,18 @@ package config
 
 import (
 	"fmt"
-	"github.com/BurntSushi/toml"
+	"gopkg.in/yaml.v3"
 	"os"
 	"time"
 )
 
 func ReadConfig(filename string) (*Config, error) {
 	config := DefaultConfig
-	_, err := toml.DecodeFile(filename, &config)
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	err = yaml.NewDecoder(file).Decode(&config)
 	return &config, err
 }
 
@@ -18,11 +22,11 @@ func WriteConfig(filename string, config *Config) error {
 	if err != nil {
 		return err
 	}
-	configFileHeader := fmt.Sprintf("# Config written on %s\n", time.Now().Format("Mon Jan 2 15:04:05 -0700 MST 2006"))
+	configFileHeader := fmt.Sprintf("# FumePing Config written on %s\n", time.Now().Format("Mon Jan 2 15:04:05 -0700 MST 2006"))
 	if _, err = file.Write([]byte(configFileHeader)); err != nil {
 		return err
 	}
 	defer file.Close()
-	err = toml.NewEncoder(file).Encode(config)
+	err = yaml.NewEncoder(file).Encode(config)
 	return err
 }

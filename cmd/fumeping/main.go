@@ -18,7 +18,7 @@ import (
 // application parameters
 var logLevel = flag.String("level", "info",
 	"Set the logging level. See https://github.com/sirupsen/logrus#level-logging for more details.")
-var configPath = flag.String("config", "./config.toml", "Set the config file path.")
+var configPath = flag.String("config", "./config.yml", "Set the config file path.")
 
 // ldflags
 var GitVersion string

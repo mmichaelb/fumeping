@@ -1,0 +1,19 @@
+# FumePing Config written on Mon Jan 11 12:34:46 +0100 CET 2021
+influxdb:
+    databasename: fumeping
+    serverurl: http://localhost:8086/
+    authenabled: true
+    username: admin
+    password: mycrazypassword
+    gatherinterval: 30
+pingmonitor:
+    timeout: 10
+    pinginterval: 1
+    payloadsize: 56
+    destinations:
+        First:
+            host: mycustomhost
+            network: ""
+        Second:
+            host: mycustomipv6host
+            network: ipv6
