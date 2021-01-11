@@ -49,7 +49,11 @@ func main() {
 }
 
 func startPingExecutors() {
-	logrus.WithField("destinationNumber", len(config.PingMonitor.Destinations)).Infoln("Starting ping executors...")
+	destinationCount := len(config.PingMonitor.Destinations)
+	if destinationCount == 0 {
+		logrus.WithField("destinationNumber", destinationCount).Fatalln("Could not start ping executors - no destination specified!")
+	}
+	logrus.WithField("destinationNumber", destinationCount).Infoln("Starting ping executors...")
 	timeout := time.Second * time.Duration(config.PingMonitor.Timeout)
 	interval := time.Second * time.Duration(config.PingMonitor.PingInterval)
 	payloadSize := config.PingMonitor.PayloadSize
