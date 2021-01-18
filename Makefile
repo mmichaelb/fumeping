@@ -10,6 +10,8 @@ OUTPUT_SUFFIX=$(go env GOEXE)
 
 OUTPUT_PREFIX=./bin/${PROJECT_NAME}-${GIT_VERSION}
 
+OUTPUT_SUFFIX=$(go env GOEXE)
+
 # builds and formats the project with the built-in Golang tool
 .PHONY: build
 build:
