@@ -84,7 +84,7 @@ func (handler *ResultHandler) gather() {
 	logrus.WithField("metrics", metrics).Debugln("Gathered metrics from ping monitor.")
 	api := handler.influxClient.WriteAPIBlocking(handler.config.Organization, handler.config.DefaultBucket)
 	for name, metric := range metrics {
-		logrus.WithField("name", name).Debugln("Writing metrics entry to InfluxDB...")
+		logrus.WithField("name", name).WithField("metric", metric).Debugln("Writing metrics entry to InfluxDB...")
 		point := influxdb2.NewPointWithMeasurement("ping").
 			AddTag("destination", name).
 			AddField("packetsSent", metric.PacketsSent).
